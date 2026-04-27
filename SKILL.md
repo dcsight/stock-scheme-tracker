@@ -1,6 +1,10 @@
 ---
 name: stock-scheme-tracker
-description: Save and track per-stock investment strategies with entry/exit conditions. Triggers on "保存策略", "跟踪策略", "检查股票策略", "核对建仓条件", "scheme", "stock strategy". Two modes: save (extract strategy from analysis → append to tracking file) and check (fetch latest prices, evaluate all conditions, output actionable recommendations).
+description: >
+  Save and track per-stock investment strategies with entry/exit conditions.
+  Triggers on 保存策略, 跟踪策略, 检查股票策略, 核对建仓条件, scheme, stock strategy.
+  Two modes: save (extract strategy from analysis → append to tracking file)
+  and check (fetch latest prices, evaluate all conditions, output actionable recommendations).
 version: 1.1.0
 requires:
   anyBins:
