@@ -1,33 +1,45 @@
 #!/usr/bin/env python3
 """
-Save stock strategy to /Users/dc/DCmacOB/stock/scheme.md
+Save stock strategy to the scheme tracking file.
 
-Reads JSON from stdin, formats it, and appends/updates scheme.md.
+The file path is determined by:
+  1. --path argument
+  2. STOCK_SCHEME_PATH environment variable
+  3. Default: ~/Documents/stock/scheme.md
+
+Reads JSON from stdin, formats it, and appends/updates the scheme file.
 
 Usage:
-    echo '{"stock_code":"688111","stock_name":"金山办公",...}' | python3 save_scheme.py
+    echo '{"stock_code":"688XXX","stock_name":"XX办公",...}' | python3 save_scheme.py [--path /path/to/scheme.md]
 """
 
 import sys
 import json
 import os
 import re
+import argparse
 from datetime import datetime
 from pathlib import Path
 
-SCHEME_PATH = Path("/Users/dc/DCmacOB/stock/scheme.md")
+
+def get_scheme_path():
+    """Resolve scheme file path from arg, env var, or default."""
+    env_path = os.environ.get("STOCK_SCHEME_PATH", "")
+    if env_path:
+        return Path(env_path).expanduser()
+    return Path.home() / "Documents" / "stock" / "scheme.md"
 
 
-def ensure_file():
+def ensure_file(scheme_path):
     """Ensure scheme.md exists with proper header."""
-    SCHEME_PATH.parent.mkdir(parents=True, exist_ok=True)
-    if not SCHEME_PATH.exists():
+    scheme_path.parent.mkdir(parents=True, exist_ok=True)
+    if not scheme_path.exists():
         header = f"""# 股票策略跟踪
 
 > 最后更新：{datetime.now().strftime('%Y-%m-%d')}
 
 """
-        SCHEME_PATH.write_text(header, encoding="utf-8")
+        scheme_path.write_text(header, encoding="utf-8")
 
 
 def parse_entry_conditions(conditions):
@@ -174,6 +186,12 @@ def update_history(content, start, end, new_entry):
 
 
 def main():
+    parser = argparse.ArgumentParser(description="Save stock strategy to scheme file")
+    parser.add_argument("--path", type=str, default=None, help="Path to scheme.md (overrides STOCK_SCHEME_PATH env var)")
+    args = parser.parse_args()
+
+    scheme_path = Path(args.path) if args.path else get_scheme_path()
+
     # Read JSON from stdin
     raw = sys.stdin.read().strip()
     if not raw:
@@ -186,8 +204,8 @@ def main():
         print(f"Error: Invalid JSON: {e}", file=sys.stderr)
         sys.exit(1)
 
-    ensure_file()
-    content = SCHEME_PATH.read_text(encoding="utf-8")
+    ensure_file(scheme_path)
+    content = scheme_path.read_text(encoding="utf-8")
 
     stock_code = data.get("stock_code", "")
     if not stock_code:
@@ -214,7 +232,7 @@ def main():
         content
     )
 
-    SCHEME_PATH.write_text(content, encoding="utf-8")
+    scheme_path.write_text(content, encoding="utf-8")
     print(f"Successfully {action} strategy for {data.get('stock_name', stock_code)} ({stock_code})")
 
 

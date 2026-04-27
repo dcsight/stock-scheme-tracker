@@ -1,8 +1,8 @@
-# stock-scheme-tracker
+# stock-scheme-tracker 📈
 
 > 个股投资策略跟踪器 — 自动保存建仓条件、核对市场状态、给出下一步建议。
 
-配合 [WorkBuddy](https://www.codebuddy.cn) AI 助手使用。完成任何个股分析后，一句话保存策略；随时检查市场条件是否触发入场/止损。
+适用于 OpenClaw / WorkBuddy / Claude Code 等 AI Agent 工具。完成任何个股分析后，一句话保存策略；随时检查市场条件是否触发入场/止损。
 
 ## 功能
 
@@ -15,21 +15,39 @@
 
 ```
 stock-scheme-tracker/
-├── SKILL.md                     # WorkBuddy skill 核心指令
+├── SKILL.md                     # Skill 核心指令
 ├── references/
 │   └── scheme_format.md         # scheme.md 格式规范
 └── scripts/
-    ├── save_scheme.py          # 保存策略（JSON输入 → 追加到 scheme.md）
+    ├── save_scheme.py           # 保存策略（JSON输入 → 追加到 scheme.md）
     └── check_scheme.py          # 核对策略（解析 scheme.md → 生成报告）
 ```
 
 ## 安装
 
-将整个文件夹放入 WorkBuddy 的 skills 目录：
+将整个文件夹放入你使用的 Agent 的 skills 目录：
 
 ```bash
+# OpenClaw
+cp -r stock-scheme-tracker ~/.openclaw/skills/
+
+# WorkBuddy
 cp -r stock-scheme-tracker ~/.workbuddy/skills/
+
+# Claude Code (project-level)
+cp -r stock-scheme-tracker .claude/skills/
 ```
+
+## 配置
+
+设置环境变量指向你的策略跟踪文件：
+
+```bash
+# 添加到 shell profile (~/.zshrc, ~/.bashrc 等)
+export STOCK_SCHEME_PATH="$HOME/Documents/stock/scheme.md"
+```
+
+如果未设置，默认路径为 `~/Documents/stock/scheme.md`。
 
 ## 使用方式
 
@@ -39,14 +57,14 @@ cp -r stock-scheme-tracker ~/.workbuddy/skills/
 python3 scripts/save_scheme.py < strategy.json
 ```
 
-或直接在工作Buddy中告诉AI：`保存策略`，AI会自动从分析报告中提取并保存。
+或直接告诉 AI：`保存策略`，AI 会自动从分析报告中提取并保存。
 
 `strategy.json` 示例：
 
 ```json
 {
-  "stock_code": "688111",
-  "stock_name": "金山办公",
+  "stock_code": "688XXX",
+  "stock_name": "XX办公",
   "analysis_date": "2026-04-22",
   "status": "观察中",
   "entry_conditions": [
@@ -76,8 +94,8 @@ python3 scripts/check_scheme.py --report < stocks.json
 {
   "stocks": [
     {
-      "code": "688111",
-      "name": "金山办公",
+      "code": "688XXX",
+      "name": "XX办公",
       "status": "观察中",
       "conditions": [
         {"name": "PE(TTM)", "target": "≤45-50", "current": "57", "triggered": "❌ 未触发", "note": "Q1扣非增速21-35%"}
@@ -93,7 +111,7 @@ python3 scripts/check_scheme.py --report < stocks.json
 策略保存到 `scheme.md`，格式如下：
 
 ```markdown
-## 金山办公 (688111)
+## XX办公 (688XXX)
 
 - **分析日期**: 2026-04-22
 - **当前状态**: 观察中
@@ -107,6 +125,13 @@ python3 scripts/check_scheme.py --report < stocks.json
 | 股价 | 180-200元 | ~250元 | ❌ 未触发 | 距目标区间仍有空间 |
 ```
 
+## 安全声明
+
+- 脚本仅在本地读写 Markdown 文件，不发起网络请求
+- Check 模式通过 Agent 的金融数据工具或 web search 获取公开行情，不传输私有策略内容
+- 不执行任何交易，不连接券商账户
+- 不收集 API Key、密码等凭据
+
 ## 依赖
 
 - Python 3.8+
@@ -114,4 +139,4 @@ python3 scripts/check_scheme.py --report < stocks.json
 
 ## License
 
-MIT
+MIT-0
