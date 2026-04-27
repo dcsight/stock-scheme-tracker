@@ -14,6 +14,16 @@ emoji: 📈
 
 # Stock Strategy Tracker 📈
 
+个股投资策略跟踪器——把分析报告中的建仓条件、止损线、目标价、退出信号持久化到一个本地 Markdown 文件，然后定期核对市场行情是否触发了入场、止损或止盈条件，给出下一步操作建议。
+
+两种模式：
+- **保存模式**：分析完一只股票后，自动提取关键策略要素，追加到跟踪文件。触发词：`保存策略`、`跟踪这个票`、`记录建仓条件`
+- **核对模式**：读取所有已保存策略，获取最新行情，逐条判断条件是否触发，输出操作建议。触发词：`检查策略`、`核对建仓条件`、`看看哪些票可以买`
+
+兼容 OpenClaw / WorkBuddy / Claude Code 等 AI Agent 工具，仅需 Python 3 和一个环境变量。
+
+---
+
 Save per-stock investment strategies extracted from analysis reports into a persistent tracking file, then periodically check if market conditions have triggered any entry, stop-loss, or take-profit conditions. Provide actionable next-step recommendations.
 
 ---
