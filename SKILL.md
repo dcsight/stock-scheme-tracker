@@ -3,7 +3,7 @@ name: stock-strategy-tracker
 description: 个股投资策略跟踪器——将从分析报告中提取的个股投资策略持久化到一个本地 Markdown 文件，然后定期核对市场行情是否触发了建仓、止损或止盈条件，给出可操作的下一步建议。
   Save and track per-stock investment strategies with entry/exit conditions.
   Triggers on 保存策略, 跟踪策略, 检查股票策略, 核对建仓条件, strategy, stock strategy.
-  Two modes: save (extract strategy from analysis → append to tracking file)
+  Two modes — save (extract strategy from analysis → append to tracking file)
   and check (fetch latest prices, evaluate all conditions, output actionable recommendations).
 version: 2.0.0
 requires:
