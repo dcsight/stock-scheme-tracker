@@ -2,7 +2,7 @@
 name: stock-strategy-tracker
 description: 个股投资策略跟踪器——将从分析报告中提取的个股投资策略持久化到一个本地 Markdown 文件，然后定期核对市场行情是否触发了建仓、止损或止盈条件，给出可操作的下一步建议。
   Save and track per-stock investment strategies with entry/exit conditions.
-  Triggers on 保存策略, 跟踪策略, 检查股票策略, 核对建仓条件, scheme, stock strategy.
+  Triggers on 保存策略, 跟踪策略, 检查股票策略, 核对建仓条件, strategy, stock strategy.
   Two modes: save (extract strategy from analysis → append to tracking file)
   and check (fetch latest prices, evaluate all conditions, output actionable recommendations).
 version: 2.0.0
@@ -11,8 +11,8 @@ requires:
     - python3
     - python
   env:
-    - STOCK_SCHEME_PATH
-primaryEnv: STOCK_SCHEME_PATH
+    - STOCK_STRATEGY_PATH
+primaryEnv: STOCK_STRATEGY_PATH
 emoji: 📈
 ---
 
@@ -48,10 +48,10 @@ cp -r stock-strategy-tracker .claude/skills/
 Set the environment variable to point to your tracking file:
 
 ```bash
-export STOCK_SCHEME_PATH="$HOME/Documents/stock/scheme.md"
+export STOCK_STRATEGY_PATH="$HOME/Documents/stock/strategy.md"
 ```
 
-If `STOCK_SCHEME_PATH` is not set, the skill defaults to `~/Documents/stock/scheme.md`.
+If `STOCK_STRATEGY_PATH` is not set, the skill defaults to `~/Documents/stock/strategy.md`.
 
 ---
 
@@ -189,10 +189,10 @@ From the analysis text, extract these fields. If a field is not mentioned, mark 
 | `market_cap` | Market cap at analysis | 1147亿 |
 
 ### Output Format
-Append a new section to the scheme file (path from `STOCK_SCHEME_PATH` env var) using the exact format defined in `references/scheme_format.md`. Use Markdown table for entry conditions so they can be machine-parsed later.
+Append a new section to the strategy file (path from `STOCK_STRATEGY_PATH` env var) using the exact format defined in `references/strategy_format.md`. Use Markdown table for entry conditions so they can be machine-parsed later.
 
 ### Important
-- If the stock already exists in the scheme file, update the existing section rather than duplicating it. Preserve historical entries by appending a date-stamped update note.
+- If the stock already exists in the strategy file, update the existing section rather than duplicating it. Preserve historical entries by appending a date-stamped update note.
 - **必须标注行业分组**——在个股条目头部增加 `行业分组: 科技/半导体` 字段
 - After saving, briefly confirm to the user what was saved.
 
@@ -224,7 +224,7 @@ Append a new section to the scheme file (path from `STOCK_SCHEME_PATH` env var) 
 
 **Step 1：读取前置文件**
 
-读取策略文件（`STOCK_SCHEME_PATH`）和当日相关记忆文件。
+读取策略文件（`STOCK_STRATEGY_PATH`）和当日相关记忆文件。
 
 **Step 2：按行业分组获取个股行情**
 
@@ -296,7 +296,7 @@ Append a new section to the scheme file (path from `STOCK_SCHEME_PATH` env var) 
 - ✅ 在触发评估表里标注"⏳ 待执行"而非"✅ 已执行"
 ```
 
-### scheme.md 更新规则
+### strategy.md 更新规则
 
 **日常（每次策略检查）**：只更新顶部「当日盘中跟踪」汇总表 → **1 次 Edit**
 
@@ -354,48 +354,48 @@ Append a new section to the scheme file (path from `STOCK_SCHEME_PATH` env var) 
 
 ## Resources
 
-- `references/scheme_format.md` — Exact Markdown schema for scheme.md entries.
-- `scripts/save_scheme.py` — Script to parse and append strategy data to scheme.md.
-- `scripts/check_scheme.py` — Script to read scheme.md, fetch prices, and evaluate conditions.
+- `references/strategy_format.md` — Exact Markdown schema for strategy.md entries.
+- `scripts/save_strategy.py` — Script to parse and append strategy data to strategy.md.
+- `scripts/check_strategy.py` — Script to read strategy.md, fetch prices, and evaluate conditions.
 
 ## Security & Guardrails
 
-1. **Local file only**: Scripts only read/write a local Markdown file specified by `STOCK_SCHEME_PATH`. No network calls by `save_scheme.py` or `check_scheme.py`.
+1. **Local file only**: Scripts only read/write a local Markdown file specified by `STOCK_STRATEGY_PATH`. No network calls by `save_strategy.py` or `check_strategy.py`.
 2. **Market data source**: During check mode, market data is fetched via the agent's available financial data tools or web search. No private strategy content or position details are transmitted.
 3. **No trading execution**: This skill provides analysis and recommendations only. It does NOT execute any trades or connect to brokerage accounts.
-4. **No credential collection**: This skill only requires `STOCK_SCHEME_PATH` (a file path). It never asks for API keys, tokens, passwords, or any other credentials.
+4. **No credential collection**: This skill only requires `STOCK_STRATEGY_PATH` (a file path). It never asks for API keys, tokens, passwords, or any other credentials.
 5. **Data integrity**: The save script uses atomic write patterns and preserves historical entries.
-6. **Path validation**: The scripts validate that `STOCK_SCHEME_PATH` points to a `.md` file and will create parent directories if needed.
+6. **Path validation**: The scripts validate that `STOCK_STRATEGY_PATH` points to a `.md` file and will create parent directories if needed.
 
 ## Environment Variable Contract
 
 | Variable | Purpose | Required | Set Via |
 |----------|---------|----------|---------|
-| `STOCK_SCHEME_PATH` | Path to the strategy tracking Markdown file | No (defaults to `~/Documents/stock/scheme.md`) | Shell profile or agent config |
+| `STOCK_STRATEGY_PATH` | Path to the strategy tracking Markdown file | No (defaults to `~/Documents/stock/strategy.md`) | Shell profile or agent config |
 
 ## Troubleshooting
 
 | Problem | Cause | Fix |
 |---------|-------|-----|
-| "No such file or directory" | `STOCK_SCHEME_PATH` not set or points to invalid path | Set env var or rely on default |
-| Strategy not found during check | Scheme file is empty or format is corrupted | Verify the file uses the format in `references/scheme_format.md` |
+| "No such file or directory" | `STOCK_STRATEGY_PATH` not set or points to invalid path | Set env var or rely on default |
+| Strategy not found during check | Strategy file is empty or format is corrupted | Verify the file uses the format in `references/strategy_format.md` |
 | Duplicate entries for same stock | Save mode ran twice without updating | The script auto-detects duplicates |
 | Chinese characters garbled | Terminal encoding mismatch | Ensure UTF-8 (`export LANG=en_US.UTF-8` or `zh_CN.UTF-8`) |
 
 ## Release Notes
 
-- **2.0.0** — Major update: Added industry classification system, macro context data sources, three-state action labeling, low-absorb→right-side switch rules, scheme.md update optimization rules, and chemical/petrochemical sub-type analysis.
+- **2.0.0** — Major update: Added industry classification system, macro context data sources, three-state action labeling, low-absorb→right-side switch rules, strategy.md update optimization rules, and chemical/petrochemical sub-type analysis.
 - **1.1.0** — Fixed metadata consistency, added credential collection disclaimer, clarified market data query scope.
 - **1.0.0** — Initial release. Save and check modes with Markdown-based tracking file.
 
 ## Links
 
-- [Scheme Format Reference](references/scheme_format.md)
-- [Save Script](scripts/save_scheme.py)
-- [Check Script](scripts/check_scheme.py)
+- [Scheme Format Reference](references/strategy_format.md)
+- [Save Script](scripts/save_strategy.py)
+- [Check Script](scripts/check_strategy.py)
 
 ## Publisher
 
 * **Publisher:** @dcsight
 * **License:** MIT-0
-* **Source:** https://github.com/dcsight/stock-scheme-tracker
+* **Source:** https://github.com/dcsight/stock-strategy-tracker

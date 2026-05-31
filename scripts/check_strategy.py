@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
 """
-Check stock strategies in the scheme tracking file.
+Check stock strategies in the strategy tracking file.
 
 The file path is determined by:
   1. --path argument
-  2. STOCK_SCHEME_PATH environment variable
-  3. Default: ~/Documents/stock/scheme.md
+  2. STOCK_STRATEGY_PATH environment variable
+  3. Default: ~/Documents/stock/strategy.md
 
 Two modes:
 1. Parse mode: Extract all tracked stocks and their conditions as JSON
-   Usage: python3 check_scheme.py --parse [--path /path/to/scheme.md]
+   Usage: python3 check_strategy.py --parse [--path /path/to/strategy.md]
 
 2. Report mode: Generate markdown report from JSON with latest market data
-   Usage: echo '{"stocks":[...]}' | python3 check_scheme.py --report
+   Usage: echo '{"stocks":[...]}' | python3 check_strategy.py --report
 
 The JSON format for report mode:
 {
@@ -42,20 +42,20 @@ from pathlib import Path
 from datetime import datetime
 
 
-def get_scheme_path():
-    """Resolve scheme file path from arg, env var, or default."""
-    env_path = os.environ.get("STOCK_SCHEME_PATH", "")
+def get_strategy_path():
+    """Resolve strategy file path from arg, env var, or default."""
+    env_path = os.environ.get("STOCK_STRATEGY_PATH", "")
     if env_path:
         return Path(env_path).expanduser()
-    return Path.home() / "Documents" / "stock" / "scheme.md"
+    return Path.home() / "Documents" / "stock" / "strategy.md"
 
 
-def parse_scheme(scheme_path):
-    """Parse scheme.md and return list of stock strategies."""
-    if not scheme_path.exists():
+def parse_strategy(strategy_path):
+    """Parse strategy.md and return list of stock strategies."""
+    if not strategy_path.exists():
         return []
 
-    content = scheme_path.read_text(encoding="utf-8")
+    content = strategy_path.read_text(encoding="utf-8")
 
     # Split by stock sections (## Stock Name (CODE))
     pattern = r"##\s+(.+?)\s*\(([A-Z0-9]+)\)\n"
@@ -198,15 +198,15 @@ def generate_report(data):
 
 def main():
     parser = argparse.ArgumentParser(description="Check stock strategies")
-    parser.add_argument("--parse", action="store_true", help="Parse scheme.md and output JSON")
+    parser.add_argument("--parse", action="store_true", help="Parse strategy.md and output JSON")
     parser.add_argument("--report", action="store_true", help="Generate report from JSON input")
-    parser.add_argument("--path", type=str, default=None, help="Path to scheme.md (overrides STOCK_SCHEME_PATH env var)")
+    parser.add_argument("--path", type=str, default=None, help="Path to strategy.md (overrides STOCK_STRATEGY_PATH env var)")
     args = parser.parse_args()
 
-    scheme_path = Path(args.path) if args.path else get_scheme_path()
+    strategy_path = Path(args.path) if args.path else get_strategy_path()
 
     if args.parse:
-        stocks = parse_scheme(scheme_path)
+        stocks = parse_strategy(strategy_path)
         print(json.dumps({"stocks": stocks}, ensure_ascii=False, indent=2))
         return
 
@@ -225,7 +225,7 @@ def main():
         return
 
     # Default: just parse and print summary
-    stocks = parse_scheme(scheme_path)
+    stocks = parse_strategy(strategy_path)
     if not stocks:
         print("没有找到任何股票策略。请先使用 save 模式保存策略。")
         return

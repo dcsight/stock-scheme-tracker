@@ -1,8 +1,8 @@
-# scheme.md 格式规范
+# strategy.md 格式规范
 
-这是策略跟踪文件（`STOCK_SCHEME_PATH` 环境变量指向的文件）的标准格式。所有条目必须遵循此格式，以便脚本能够正确解析。
+这是策略跟踪文件（`STOCK_STRATEGY_PATH` 环境变量指向的文件）的标准格式。所有条目必须遵循此格式，以便脚本能够正确解析。
 
-> 默认路径：`~/Documents/stock/scheme.md`（可通过 `STOCK_SCHEME_PATH` 环境变量覆盖）
+> 默认路径：`~/Documents/stock/strategy.md`（可通过 `STOCK_STRATEGY_PATH` 环境变量覆盖）
 
 ## 文件头部
 

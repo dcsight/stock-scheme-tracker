@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 """
-Save stock strategy to the scheme tracking file.
+Save stock strategy to the strategy tracking file.
 
 The file path is determined by:
   1. --path argument
-  2. STOCK_SCHEME_PATH environment variable
-  3. Default: ~/Documents/stock/scheme.md
+  2. STOCK_STRATEGY_PATH environment variable
+  3. Default: ~/Documents/stock/strategy.md
 
-Reads JSON from stdin, formats it, and appends/updates the scheme file.
+Reads JSON from stdin, formats it, and appends/updates the strategy file.
 
 Usage:
-    echo '{"stock_code":"688XXX","stock_name":"XX办公",...}' | python3 save_scheme.py [--path /path/to/scheme.md]
+    echo '{"stock_code":"688XXX","stock_name":"XX办公",...}' | python3 save_strategy.py [--path /path/to/strategy.md]
 """
 
 import sys
@@ -22,24 +22,24 @@ from datetime import datetime
 from pathlib import Path
 
 
-def get_scheme_path():
-    """Resolve scheme file path from arg, env var, or default."""
-    env_path = os.environ.get("STOCK_SCHEME_PATH", "")
+def get_strategy_path():
+    """Resolve strategy file path from arg, env var, or default."""
+    env_path = os.environ.get("STOCK_STRATEGY_PATH", "")
     if env_path:
         return Path(env_path).expanduser()
-    return Path.home() / "Documents" / "stock" / "scheme.md"
+    return Path.home() / "Documents" / "stock" / "strategy.md"
 
 
-def ensure_file(scheme_path):
-    """Ensure scheme.md exists with proper header."""
-    scheme_path.parent.mkdir(parents=True, exist_ok=True)
-    if not scheme_path.exists():
+def ensure_file(strategy_path):
+    """Ensure strategy.md exists with proper header."""
+    strategy_path.parent.mkdir(parents=True, exist_ok=True)
+    if not strategy_path.exists():
         header = f"""# 股票策略跟踪
 
 > 最后更新：{datetime.now().strftime('%Y-%m-%d')}
 
 """
-        scheme_path.write_text(header, encoding="utf-8")
+        strategy_path.write_text(header, encoding="utf-8")
 
 
 def parse_entry_conditions(conditions):
@@ -186,11 +186,11 @@ def update_history(content, start, end, new_entry):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Save stock strategy to scheme file")
-    parser.add_argument("--path", type=str, default=None, help="Path to scheme.md (overrides STOCK_SCHEME_PATH env var)")
+    parser = argparse.ArgumentParser(description="Save stock strategy to strategy file")
+    parser.add_argument("--path", type=str, default=None, help="Path to strategy.md (overrides STOCK_STRATEGY_PATH env var)")
     args = parser.parse_args()
 
-    scheme_path = Path(args.path) if args.path else get_scheme_path()
+    strategy_path = Path(args.path) if args.path else get_strategy_path()
 
     # Read JSON from stdin
     raw = sys.stdin.read().strip()
@@ -204,8 +204,8 @@ def main():
         print(f"Error: Invalid JSON: {e}", file=sys.stderr)
         sys.exit(1)
 
-    ensure_file(scheme_path)
-    content = scheme_path.read_text(encoding="utf-8")
+    ensure_file(strategy_path)
+    content = strategy_path.read_text(encoding="utf-8")
 
     stock_code = data.get("stock_code", "")
     if not stock_code:
@@ -232,7 +232,7 @@ def main():
         content
     )
 
-    scheme_path.write_text(content, encoding="utf-8")
+    strategy_path.write_text(content, encoding="utf-8")
     print(f"Successfully {action} strategy for {data.get('stock_name', stock_code)} ({stock_code})")
 
 
